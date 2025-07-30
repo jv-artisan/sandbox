@@ -15,3 +15,79 @@ spec:
         name: grafana
         namespace: default
       version: '1.1.*'
+  values:
+    alloy:
+      configMap:
+        content: |-
+          discovery.kubernetes "kubelet" {
+            role = "node"
+          }
+
+          // Scrape kubelet metrics
+          prometheus.scrape "kubelet" {
+            targets    = discovery.kubernetes.kubelet.targets
+            forward_to = [otelcol.receiver.prometheus.default.receiver]
+
+            // Kubelet metrics endpoints
+            metrics_path = "/metrics"
+            scheme       = "https"
+
+            // Skip TLS verification for kubelet (adjust based on your setup)
+            tls_config {
+              insecure_skip_verify = true
+            }
+
+            // Add kubelet-specific scraping config
+            scrape_interval = "30s"
+            scrape_timeout  = "10s"
+          }
+
+          // Additional kubelet endpoints you might want to scrape
+          prometheus.scrape "kubelet_cadvisor" {
+            targets    = discovery.kubernetes.kubelet.targets
+            forward_to = [otelcol.receiver.prometheus.default.receiver]
+
+            metrics_path = "/metrics/cadvisor"
+            scheme       = "https"
+
+            tls_config {
+              insecure_skip_verify = true
+            }
+
+            scrape_interval = "30s"
+            scrape_timeout  = "10s"
+          }
+
+          prometheus.scrape "kubelet_probes" {
+            targets    = discovery.kubernetes.kubelet.targets
+            forward_to = [otelcol.receiver.prometheus.default.receiver]
+
+            metrics_path = "/metrics/probes"
+            scheme       = "https"
+
+            tls_config {
+              insecure_skip_verify = true
+            }
+
+            scrape_interval = "30s"
+            scrape_timeout  = "10s"
+          }
+
+          // Convert Prometheus metrics to OTEL format
+          otelcol.receiver.prometheus "default" {
+            output {
+              metrics = [otelcol.exporter.logging.default.input]
+            }
+          }
+
+          // Export metrics to stdout
+          otelcol.exporter.logging "default" {
+            verbosity           = "detailed"
+            sampling_initial    = 1000
+            sampling_thereafter = 1000
+          }
+
+
+          discovery.kubernetes "pods" {
+            role = "pod"
+          }
