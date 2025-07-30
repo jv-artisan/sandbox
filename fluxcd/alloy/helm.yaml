@@ -5,11 +5,11 @@ metadata:
   name: alloy
   namespace: default
 spec:
-  interval: 5m0s
+  interval: 30s
   chart:
     spec:
       chart: alloy
-      interval: 5m0s
+      interval: 30s
       sourceRef:
         kind: HelmRepository
         name: grafana
