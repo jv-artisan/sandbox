@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openkruise
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://openkruise.github.io/charts/
+    chart: kruise
+    targetRevision: 1.8.0
+    helm:
+      releaseName: kruise
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
