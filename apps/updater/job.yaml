@@ -3,6 +3,7 @@ apiVersion: apps.kruise.io/v1alpha1
 kind: BroadcastJob
 metadata:
   name: updater
+  namespace: default
 spec:
   template:
     spec:
