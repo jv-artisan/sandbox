@@ -1,0 +1,24 @@
+---
+apiVersion: apps.kruise.io/v1alpha1
+kind: BroadcastJob
+metadata:
+  name: updater
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: updater
+          image: ttl.sh/6b35dad9-6afc-4b59-b9b8-503cc4e73f9d:1h
+          command: ["cp", "/opt/edge/agent*", "/mnt/host/usr/bin/"]
+          volumeMounts:
+            - name: host
+              mountPath: /mnt/host
+      volumes:
+        - name: host
+          hostPath:
+            path: /
+            type: Directory
+  completionPolicy:
+    type: Always
+    ttlSecondsAfterFinished: 30
