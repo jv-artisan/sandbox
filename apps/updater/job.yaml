@@ -22,4 +22,4 @@ spec:
             type: Directory
   completionPolicy:
     type: Always
-    ttlSecondsAfterFinished: 30
+    ttlSecondsAfterFinished: 3600
