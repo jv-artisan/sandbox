@@ -1,0 +1,163 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alloy
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: alloy
+    targetRevision: 1.1.1
+    helm:
+      releaseName: alloy
+      valuesObject:
+        crds:
+          create: false
+        serviceAccount:
+          create: true
+        # Run as DaemonSet to collect metrics from all nodes
+        controller:
+          type: daemonset
+        alloy:
+          clustering:
+            enabled: false
+          # Extra port for Vector prometheus_scrape
+          extraPorts:
+            - name: prometheus
+              port: 9090
+              targetPort: 9090
+              protocol: TCP
+          configMap:
+            content: |
+              // ============================================
+              // Kubernetes Discovery
+              // ============================================
+
+              // Discover nodes for kubelet metrics
+              discovery.kubernetes "nodes" {
+                role = "node"
+              }
+
+              // Relabel nodes to target kubelet endpoints
+              discovery.relabel "kubelet" {
+                targets = discovery.kubernetes.nodes.targets
+
+                rule {
+                  source_labels = ["__meta_kubernetes_node_address_InternalIP"]
+                  target_label  = "__address__"
+                  replacement   = "$1:10250"
+                }
+
+                rule {
+                  source_labels = ["__meta_kubernetes_node_name"]
+                  target_label  = "node"
+                }
+
+                rule {
+                  target_label = "job"
+                  replacement  = "kubelet"
+                }
+              }
+
+              // ============================================
+              // Metrics Collection
+              // ============================================
+
+              // Scrape kubelet metrics
+              prometheus.scrape "kubelet" {
+                targets    = discovery.relabel.kubelet.output
+                forward_to = [prometheus.relabel.add_cluster.receiver]
+
+                job_name     = "kubelet"
+                metrics_path = "/metrics"
+                scheme       = "https"
+
+                tls_config {
+                  insecure_skip_verify = true
+                }
+
+                bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+                scrape_interval = "30s"
+                scrape_timeout  = "10s"
+              }
+
+              // Scrape cAdvisor metrics (container resource usage)
+              prometheus.scrape "cadvisor" {
+                targets    = discovery.relabel.kubelet.output
+                forward_to = [prometheus.relabel.add_cluster.receiver]
+
+                job_name     = "cadvisor"
+                metrics_path = "/metrics/cadvisor"
+                scheme       = "https"
+
+                tls_config {
+                  insecure_skip_verify = true
+                }
+
+                bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+                scrape_interval = "30s"
+                scrape_timeout  = "10s"
+              }
+
+              // Scrape kubelet probes metrics
+              prometheus.scrape "kubelet_probes" {
+                targets    = discovery.relabel.kubelet.output
+                forward_to = [prometheus.relabel.add_cluster.receiver]
+
+                job_name     = "kubelet-probes"
+                metrics_path = "/metrics/probes"
+                scheme       = "https"
+
+                tls_config {
+                  insecure_skip_verify = true
+                }
+
+                bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+                scrape_interval = "30s"
+                scrape_timeout  = "10s"
+              }
+
+              // ============================================
+              // Metrics Processing & Export
+              // ============================================
+
+              // Add cluster label to all metrics
+              prometheus.relabel "add_cluster" {
+                forward_to = [otelcol.receiver.prometheus.default.receiver]
+
+                rule {
+                  target_label = "cluster"
+                  replacement  = "edge"
+                }
+              }
+
+              // Convert Prometheus metrics to OTLP
+              otelcol.receiver.prometheus "default" {
+                output {
+                  metrics = [otelcol.exporter.prometheus.vector.input]
+                }
+              }
+
+              // Expose metrics on port 9090 for Vector to scrape
+              // Vector can use prometheus_scrape source pointing to alloy:9090/metrics
+              otelcol.exporter.prometheus "vector" {
+                endpoint {
+                  address = "0.0.0.0:9090"
+                }
+              }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
