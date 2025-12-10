@@ -25,11 +25,11 @@ spec:
         alloy:
           clustering:
             enabled: false
-          # Extra port for Vector prometheus_scrape
+          # Expose the otelcol.exporter.prometheus endpoint (default 12345)
           extraPorts:
-            - name: prometheus
-              port: 9090
-              targetPort: 9090
+            - name: prometheus-export
+              port: 12345
+              targetPort: 12345
               protocol: TCP
           configMap:
             content: |
@@ -124,6 +124,15 @@ spec:
                 scrape_timeout  = "10s"
               }
 
+              // Collect node-level metrics
+              prometheus.exporter.unix "node" {}
+
+              prometheus.scrape "node" {
+                targets         = prometheus.exporter.unix.node.targets
+                forward_to      = [prometheus.relabel.add_cluster.receiver]
+                scrape_interval = "30s"
+              }
+
               // ============================================
               // Metrics Processing & Export
               // ============================================
@@ -138,20 +147,16 @@ spec:
                 }
               }
 
-              // Convert Prometheus metrics to OTLP
+              // Convert Prometheus metrics to OTLP format
               otelcol.receiver.prometheus "default" {
                 output {
                   metrics = [otelcol.exporter.prometheus.vector.input]
                 }
               }
 
-              // Expose metrics on port 9090 for Vector to scrape
-              // Vector can use prometheus_scrape source pointing to alloy:9090/metrics
-              otelcol.exporter.prometheus "vector" {
-                endpoint {
-                  address = "0.0.0.0:9090"
-                }
-              }
+              // Expose metrics on port 12345 for Vector to scrape
+              // Vector can use prometheus_scrape source: http://alloy.monitoring:12345/metrics
+              otelcol.exporter.prometheus "vector" {}
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
