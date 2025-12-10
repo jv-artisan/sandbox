@@ -1,2 +1,2 @@
-resources:
-  - updater/job.yaml
+# resources:
+#   - updater/job.yaml
