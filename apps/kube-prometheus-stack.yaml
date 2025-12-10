@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/jv-artisan/sandbox.git
+    targetRevision: main
+    path: apps/monitoring/kube-prometheus-stack
+    helm:
+      valueFiles:
+        - values.yaml
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
