@@ -44,7 +44,7 @@ kube-prometheus-stack:
 
   ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
   ##
-  
+
   grafana:
     enabled: false
 
@@ -58,6 +58,8 @@ kube-prometheus-stack:
       name: ""
 
   prometheus-node-exporter:
+    hostRootFsMount:
+      enabled: false
     resources:
       limits:
         memory: 200Mi
