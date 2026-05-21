@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - repo.yaml
   - deploy.yaml
+  - configmap.yaml

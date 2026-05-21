@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-integration-services-config
+  namespace: default
+  labels:
+    app.kubernetes.io/name: device-integration-services
+    app.kubernetes.io/part-of: device-integration-services
+data:
+  config.yml: |
+    Port: :8080
+    AllowDebugLogger: true
+    HealthcheckSuccessMessage: "Success"
+    ReadHeaderTimeoutSeconds: 30
+
+    ClusterId: "${CLUSTER_ID}"
+
+    LogLevel: "info"
