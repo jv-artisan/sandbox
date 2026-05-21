@@ -4,3 +4,4 @@ resources:
   - repo.yaml
   - deploy.yaml
   - configmap.yaml
+  - testing.yaml

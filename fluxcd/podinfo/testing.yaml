@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: device-integration-services
+  namespace: default
+  labels:
+    app: device-integration-services
+    app.kubernetes.io/name: device-integration-services
+    app.kubernetes.io/part-of: device-integration-services
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: device-integration-services
+  template:
+    metadata:
+      labels:
+        app: device-integration-services
+        app.kubernetes.io/name: device-integration-services
+        app.kubernetes.io/part-of: device-integration-services
+    spec:
+      containers:
+        - name: sample
+          image: bitnami/kubectl:1.35
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "sleep infinity"]
+          env:
+            - name: ENV
+              value: prod
+            - name: CLUSTER_ID
+              value: ${CLUSTER_ID}
+            - name: SERVICE_NAME
+              value: device-integration-services-prod
+            - name: SERVICE_VERSION
+              value: ${SERVICE_VERSION}
+            - name: AWS_REGION
+              value: us-east-1
