@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: device-integration-services
     app.kubernetes.io/part-of: device-integration-services
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: device-integration-services
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: sample
-          image: bitnami/kubectl:1.35
+          image: bitnami/kubectl:sha256-2bcadee42229af1172cc9254d937abc04fbe948203d50ec6e43b578f10003f3f
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "sleep infinity"]
           env:
