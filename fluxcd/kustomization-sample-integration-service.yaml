@@ -19,6 +19,6 @@ spec:
     substitute:
       SERVICE_VERSION: "v0.0.37"
       IMAGE_TAG: "v0.0.37"
-    # substituteFrom:
-    #   - kind: ConfigMap
-    #     name: cluster-config
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
