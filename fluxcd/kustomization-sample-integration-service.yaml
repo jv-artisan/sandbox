@@ -12,6 +12,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: git-my-sandbox
+    namespace: flux-system
   timeout: 3m0s
   postBuild:
     substitute:
