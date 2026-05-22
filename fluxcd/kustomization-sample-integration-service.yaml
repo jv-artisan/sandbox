@@ -5,7 +5,7 @@ metadata:
   name: flux-app-sample-integration-service
   namespace: flux-system
 spec:
-  # targetNamespace: sample-integration-service
+  targetNamespace: flux-system
   interval: 1m0s
   path: ./fluxcd/sample-integration-service
   prune: true
