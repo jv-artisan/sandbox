@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-config
+  namespace: sample-integration-service
+  labels:
+    app.kubernetes.io/name: sample-integration-service
+    app.kubernetes.io/part-of: sample-integration-service
+data:
+  CLUSTER_ID: "${CLUSTER_ID}"

@@ -6,3 +6,4 @@ resources:
   - ./ingress-nginx/
   - ./podinfo/
   - ./kustomization-sample-integration-service.yaml
+  - configmap.yaml
