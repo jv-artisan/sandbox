@@ -1,4 +1,6 @@
 ---
+# take settings that are present in the flux-system namespace and mirror them into the
+# sample-integration-service namespace
 apiVersion: v1
 kind: ConfigMap
 metadata:
