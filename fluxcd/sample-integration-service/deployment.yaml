@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-integration-service
+  namespace: sample-integration-service
+  labels:
+    app: sample-integration-service
+    app.kubernetes.io/name: sample-integration-service
+    app.kubernetes.io/part-of: sample-integration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-integration-service
+  template:
+    metadata:
+      labels:
+        app: sample-integration-service
+        app.kubernetes.io/name: sample-integration-service
+        app.kubernetes.io/part-of: sample-integration-service
+    spec:
+      containers:
+        - name: sample
+          image: astral/uv:trixie
+          imagePullPolicy: IfNotPresent
+          command:
+          - "/bin/bash"
+          - "-c"
+          - |
+            set -e
+
+            env | sort
+
+            uv init --bare /mnt/sample
+            cd /mnt/sample
+            uv add pyyaml
+
+            uv run python <<PY
+            import os
+            from yaml import Loader, load
+
+            print(os.getenv('CLUSTER_ID'))
+
+            with open('/etc/wp-service/config.yml') as f:
+              config_data = f.read()
+              print(f'raw config: {config_data}')
+
+              config = load(config_data, Loader=Loader)
+              print(f'parsed config: {config}')
+
+            PY
+
+            sleep infinity
+          env:
+            - name: ENV
+              value: prod
+            - name: CLUSTER_ID
+              value: ${CLUSTER_ID}
+            - name: SERVICE_NAME
+              value: sample-integration-service-prod
+            - name: SERVICE_VERSION
+              value: ${SERVICE_VERSION}
+            - name: AWS_REGION
+              value: us-east-1
+          volumeMounts:
+            - name: config
+              mountPath: /etc/wp-service
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: sample-integration-service-config

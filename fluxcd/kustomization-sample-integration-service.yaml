@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-app-sample-integration-service
+  namespace: default
+spec:
+  interval: 10m0s
+  path: ./fluxcd/sample-integration-service
+  prune: true
+  retryInterval: 2m0s
+  sourceRef:
+    kind: GitRepository
+    name: git-my-sandbox
+  timeout: 3m0s
+  postBuild:
+    substitute:
+      SERVICE_VERSION: "v0.0.37"
+      IMAGE_TAG: "v0.0.37"

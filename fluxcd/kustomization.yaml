@@ -4,3 +4,4 @@ resources:
   - ./alloy/
   - ./ingress-nginx/
   - ./podinfo/
+  - ./kustomization-sample-integration-service.yaml

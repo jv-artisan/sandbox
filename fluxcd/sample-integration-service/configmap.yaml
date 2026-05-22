@@ -2,11 +2,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: device-integration-services-config
-  namespace: default
+  name: sample-integration-service-config
+  namespace: sample-integration-service
   labels:
-    app.kubernetes.io/name: device-integration-services
-    app.kubernetes.io/part-of: device-integration-services
+    app.kubernetes.io/name: sample-integration-service
+    app.kubernetes.io/part-of: sample-integration-service
 data:
   config.yml: |
     Port: :8080
