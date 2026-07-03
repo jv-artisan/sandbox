@@ -13,15 +13,36 @@ spec:
   source:
     repoURL: https://charts.longhorn.io
     chart: longhorn
-    targetRevision: 1.11.0
+    targetRevision: 1.12.0
     helm:
       releaseName: longhorn
       valuesObject:
         preUpgradeChecker:
           jobEnabled: false
         persistence:
+          createStorageClass: true
+          dataEngine: v1
           defaultClass: false
+          defaultClassReplicaCount: 3
+          defaultDataLocality: best-effort
+          defaultFsType: ext4
+          reclaimPolicy: Retain
+          volumeBindingMode: Immediate
         defaultSettings:
+          allowVolumeCreationWithDegradedAvailability: false
+          autoDeletePodWhenVolumeDetachedUnexpectedly: true
+          autoSalvage: true
+          defaultReplicaCount: '{"v1":"3","v2":"3"}'
+          guaranteedInstanceManagerCPU: '{"v1":"12","v2":"12"}'
+          nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+          nodeDrainPolicy: block-if-contains-last-replica
+          replicaAutoBalance: best-effort
+          replicaReplenishmentWaitInterval: 600
+          storageMinimalAvailablePercentage: 25
+          storageOverProvisioningPercentage: 100
+          storageReservedPercentageForDefaultDisk: 30
+          v1DataEngine: true
+          v2DataEngine: false
           logLevel: Info
   syncPolicy:
     automated: {}
