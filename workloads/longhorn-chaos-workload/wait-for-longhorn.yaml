@@ -76,7 +76,7 @@ spec:
       serviceAccountName: longhorn-chaos-workload-sync
       containers:
         - name: wait
-          image: bitnami/kubectl:1.32
+          image: registry.k8s.io/kubectl:v1.32.3
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
