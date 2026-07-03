@@ -73,6 +73,41 @@ spec:
         app.kubernetes.io/name: wait-for-longhorn
         app.kubernetes.io/part-of: longhorn-validation
     spec:
+      initContainers:
+        - name: wait-storageclass
+          image: registry.k8s.io/kubectl:v1.32.3
+          imagePullPolicy: IfNotPresent
+          command:
+            - kubectl
+          args:
+            - wait
+            - --for=create
+            - storageclass/longhorn
+            - --timeout=900s
+        - name: wait-driver-deployer
+          image: registry.k8s.io/kubectl:v1.32.3
+          imagePullPolicy: IfNotPresent
+          command:
+            - kubectl
+          args:
+            - -n
+            - longhorn-system
+            - rollout
+            - status
+            - deployment/longhorn-driver-deployer
+            - --timeout=900s
+        - name: wait-manager
+          image: registry.k8s.io/kubectl:v1.32.3
+          imagePullPolicy: IfNotPresent
+          command:
+            - kubectl
+          args:
+            - -n
+            - longhorn-system
+            - rollout
+            - status
+            - daemonset/longhorn-manager
+            - --timeout=900s
       restartPolicy: Never
       serviceAccountName: longhorn-chaos-workload-sync
       containers:
@@ -80,36 +115,8 @@ spec:
           image: registry.k8s.io/kubectl:v1.32.3
           imagePullPolicy: IfNotPresent
           command:
-            - /bin/sh
-            - -ec
-            - |
-              deadline=$((SECONDS + 900))
-
-              until kubectl get storageclass longhorn >/dev/null 2>&1; do
-                if [ "${SECONDS}" -ge "${deadline}" ]; then
-                  echo "timed out waiting for storageclass/longhorn"
-                  exit 1
-                fi
-                echo "waiting for storageclass/longhorn"
-                sleep 10
-              done
-
-              until kubectl -n longhorn-system rollout status deployment/longhorn-driver-deployer --timeout=30s; do
-                if [ "${SECONDS}" -ge "${deadline}" ]; then
-                  echo "timed out waiting for deployment/longhorn-driver-deployer"
-                  exit 1
-                fi
-                echo "waiting for longhorn-driver-deployer"
-                sleep 10
-              done
-
-              until kubectl -n longhorn-system rollout status daemonset/longhorn-manager --timeout=30s; do
-                if [ "${SECONDS}" -ge "${deadline}" ]; then
-                  echo "timed out waiting for daemonset/longhorn-manager"
-                  exit 1
-                fi
-                echo "waiting for daemonset/longhorn-manager"
-                sleep 10
-              done
-
-              echo "longhorn is ready for validation workloads"
+            - kubectl
+          args:
+            - get
+            - storageclass
+            - longhorn
