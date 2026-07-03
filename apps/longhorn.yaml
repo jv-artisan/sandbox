@@ -19,6 +19,8 @@ spec:
       valuesObject:
         preUpgradeChecker:
           jobEnabled: false
+        persistence:
+          defaultClass: false
         defaultSettings:
           logLevel: Info
   syncPolicy:
