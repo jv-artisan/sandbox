@@ -60,6 +60,7 @@ metadata:
   namespace: longhorn-chaos-workload
   annotations:
     argocd.argoproj.io/sync-wave: "-5"
+    argocd.argoproj.io/sync-options: Force=true,Replace=true
   labels:
     app.kubernetes.io/name: wait-for-longhorn
     app.kubernetes.io/part-of: longhorn-validation
