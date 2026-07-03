@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://github.com/jv-artisan/sandbox.git
     targetRevision: main
-    path: apps/longhorn-chaos-workload
+    path: workloads/longhorn-chaos-workload
   syncPolicy:
     automated: {}
     syncOptions:
