@@ -1,3 +1,4 @@
 resources:
   - kube-prometheus-stack.yaml
   - longhorn.yaml
+  - longhorn-chaos-workload.yaml

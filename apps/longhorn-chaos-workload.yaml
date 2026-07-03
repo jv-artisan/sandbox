@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn-chaos-workload
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: longhorn-chaos-workload
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/jv-artisan/sandbox.git
+    targetRevision: main
+    path: apps/longhorn-chaos-workload
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    managedNamespaceMetadata:
+      labels:
+        artisan.io/managed: "true"
