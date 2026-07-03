@@ -1,4 +1,3 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -7,16 +6,28 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
+  destination:
+    namespace: longhorn-system
+    server: https://kubernetes.default.svc
   project: default
   source:
     repoURL: https://charts.longhorn.io
     chart: longhorn
-    targetRevision: 1.9.0
+    targetRevision: 1.11.0
     helm:
       releaseName: longhorn
       valuesObject:
+        preUpgradeChecker:
+          jobEnabled: false
         defaultSettings:
           logLevel: Info
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: longhorn-system
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    managedNamespaceMetadata:
+      labels:
+        artisan.io/managed: "true"
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
