@@ -1,4 +1,7 @@
 resources:
   - kube-prometheus-stack.yaml
-  - longhorn.yaml
+  # Longhorn is installed by the edge ansible playbook. Keep this Application
+  # manifest available for manual sandbox experiments, but do not let Argo CD
+  # manage Longhorn by default.
+  # - longhorn.yaml
   - longhorn-chaos-workload.yaml
