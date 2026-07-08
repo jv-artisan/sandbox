@@ -4,7 +4,6 @@ resources:
   # uses directory recursion, so the old Application manifest must keep a
   # non-YAML extension or Argo CD will still apply it.
   # - longhorn.yaml.disabled
-  # The validation workload also depends on Longhorn being fully installed. Keep
-  # it disabled during cluster bootstrap/reinstall so it cannot recreate PVCs and
-  # pods while the Ansible-owned Longhorn release is still converging.
-  # - longhorn-chaos-workload.yaml.disabled
+  # The validation workload depends on Longhorn being fully installed. Keep it
+  # enabled only after the Ansible-owned Longhorn release has converged.
+  - longhorn-chaos-workload.yaml
