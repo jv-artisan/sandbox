@@ -1,7 +1,7 @@
 resources:
   - kube-prometheus-stack.yaml
-  # Longhorn is installed by the edge ansible playbook. Keep this Application
-  # manifest available for manual sandbox experiments, but do not let Argo CD
-  # manage Longhorn by default.
-  # - longhorn.yaml
+  # Longhorn is installed by the edge ansible playbook. The parent app-of-apps
+  # uses directory recursion, so the old Application manifest must keep a
+  # non-YAML extension or Argo CD will still apply it.
+  # - longhorn.yaml.disabled
   - longhorn-chaos-workload.yaml
